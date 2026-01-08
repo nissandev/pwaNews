@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { NewsGrid } from "@/features/news/components/NewsGrid";
-import { newsApi } from "@/services/newsApi";
+import { dividendApi } from "@/services/dividendApi";
 import type { NewsItem } from "@/features/news/types";
 import { Loader2 } from "lucide-react";
 
@@ -13,15 +13,16 @@ export default function CategoryPage() {
 
     useEffect(() => {
         const fetchCategoryNews = async () => {
-            if (!id) return;
+            // Note: The Dividend API doesn't strictly support category search like NewsAPI.
+            // We will fetch recent dividends to ensure content is shown.
 
             try {
                 setLoading(true);
-                const articles = await newsApi.searchNews(id);
-                const newsItems = articles.map(newsApi.adaptToNewsItem);
+                const dividends = await dividendApi.getRecentDividends();
+                const newsItems = dividends.map(dividendApi.adaptToNewsItem);
                 setNews(newsItems);
             } catch (err) {
-                console.error("Failed to fetch category news:", err);
+                console.error("Failed to fetch dividends:", err);
             } finally {
                 setLoading(false);
             }
@@ -41,7 +42,7 @@ export default function CategoryPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold border-b pb-4">{title} News</h1>
+                <h1 className="text-3xl font-bold border-b pb-4">{title} Dividends</h1>
             </div>
 
             {news.length > 0 ? (
@@ -53,7 +54,7 @@ export default function CategoryPage() {
                 </>
             ) : (
                 <div className="text-center text-gray-500 py-10">
-                    No news found for this category.
+                    No dividends found.
                 </div>
             )}
         </div>
